@@ -251,9 +251,10 @@ markdown = ""
 if inname == "clipboard":
     markdown = pyperclip.paste()
     with open(inname + ".md", "w") as infile:
+        to_save = markdown
         if encoding != 'utf-8':
-            markdown = markdown.encode(encoding)
-        infile.write(markdown)
+            to_save = markdown.encode(encoding)
+        infile.write(to_save)
 else:
     inname = os.path.abspath(inname)
     os.chdir(os.path.dirname(inname))
