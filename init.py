@@ -15,5 +15,11 @@ code = code.replace(place, "\"{0}\"".format(path))
 with open("poster.py", "w") as f:
     f.write(code)
 
-subprocess.call(["ln", "-s", os.path.abspath(poster), link])
+if os.name == 'nt' or platform.system() == 'Windows':
+    os.mkdir("win")
+    subprocess(["mklink", "win\\poster", os.path.abspath(poster)])
+    subprocess(["setx", "PATH", "%PATH%;{0}".format(os.path.abspath("win"))])
+else:
+    subprocess.call(["ln", "-s", os.path.abspath(poster), link])
+
 
