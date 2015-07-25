@@ -11,7 +11,7 @@ import markdown2
 import argparse
 import re
 
-default_setfile  = __DEFAULT_SETTINGS__ 
+default_setfile  = "/Users/majorm/project/habratex/default.json" 
 
 parser = argparse.ArgumentParser(description='Convert Markdown + LaTeX to habrahabr\'s format.')
 parser.add_argument('infile', metavar='INFILE', nargs=1,
@@ -37,13 +37,13 @@ with open(default_setfile, "r") as f:
 habrasid = args["habrasid"] or default_habrasid
 encoding = args["encoding"] or default_encoding
 
-
 def post(filename):
     global habrasid
     done = False
     old = habrasid
     while not done:
         jres = subprocess.Popen(["curl",\
+            "-k",\
             "--cookie", "habrastorage_sid={0}".format(habrasid),\
             "--form", "files[]=@{0}".format(filename),\
             "--header", "X-Requested-With: XMLHttpRequest",\
@@ -88,7 +88,7 @@ class LinkPool:
             os.mkdir(poolname)
     
     def getname(self, counter):
-        return "{0}/f_{1}".format(self.poolname, counter)
+        return os.path.join(self.poolname, "f_{0}".format(counter))
 
     def getnext(self):
         while os.path.isfile(self.getname(self.counter)):

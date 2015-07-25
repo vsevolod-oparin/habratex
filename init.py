@@ -2,6 +2,12 @@
 
 import os
 import subprocess
+import platform
+import argparse
+
+parser = argparse.ArgumentParser(description='Init script.')
+parser.add_argument("-l", "--link", action='store_true', help = "make symbolic link /usr/bin/poster")
+args = vars(parser.parse_args())
 
 default = "default.json"
 poster  = "poster.py"
@@ -15,11 +21,14 @@ code = code.replace(place, "\"{0}\"".format(path))
 with open("poster.py", "w") as f:
     f.write(code)
 
-if os.name == 'nt' or platform.system() == 'Windows':
-    os.mkdir("win")
-    subprocess(["mklink", "win\\poster", os.path.abspath(poster)])
-    subprocess(["setx", "PATH", "%PATH%;{0}".format(os.path.abspath("win"))])
-else:
-    subprocess.call(["ln", "-s", os.path.abspath(poster), link])
+if args["link"]:
+    print "Asked"
+    if os.name == 'nt' or platform.system() == 'Windows':
+        os.mkdir("win")
+        subprocess(["mklink", "win\\poster", os.path.abspath(poster)])
+        subprocess(["setx", "PATH", "%PATH%;{0}".format(os.path.abspath("win"))])
+    else:
+        if not os.path.isfile(link):
+            subprocess.call(["ln", "-s", os.path.abspath(poster), link])
 
 
