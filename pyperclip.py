@@ -98,7 +98,8 @@ def _copyOSX(text):
 def _pasteOSX():
     p = Popen(['pbpaste', 'r'], stdout=PIPE)
     stdout, stderr = p.communicate()
-    return bytes.decode(stdout)
+    # return bytes.decode(stdout)
+    return stdout
 
 
 def _pasteGtk():

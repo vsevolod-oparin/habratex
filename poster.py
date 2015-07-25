@@ -246,12 +246,20 @@ class Convertor:
         return text.strip()
     
 conv = Convertor()
-result = ""
-inname = os.path.abspath(args["infile"][0])
-os.chdir(os.path.dirname(inname))
-outname = args["outfile"] or re.sub("\..*?$", ".txt", inname)
-with open(inname, "r") as infile:
-    result = conv.convert(infile.read())
+inname = args["infile"][0]
+markdown = ""
+if inname == "clipboard":
+    markdown = pyperclip.paste()
+    with open(inname + ".md", "w") as infile:
+        infile.write(markdown)
+else:
+    inname = os.path.abspath(inname)
+    os.chdir(os.path.dirname(inname))
+    with open(inname, "r") as infile:
+        markdown = infile.read()
+
+outname = args["outfile"] or (re.sub("\..*?$", "", inname) + ".txt")
+result = conv.convert(markdown)
 if "clipboard" in args:
     pyperclip.copy(result)
 with open(outname, "w") as outfile:
