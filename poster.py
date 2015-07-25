@@ -1,4 +1,5 @@
-#!/usr/local/bin/python
+#!/usr/bin/env python
+# Vsevolod Oparin, 2015
 
 import json
 import shutil
@@ -6,16 +7,21 @@ import os.path
 import subprocess
 import sys
 import markdown2
-import codecs
 import argparse
 import re
 
-habrasid = '1tdl7igaof40l7rjcvjrsfgd57'
+default_habrasid = '1tdl7igaof40l7rjcvjrsfgd57'
+default_encoding = "utf-8"
 
 parser = argparse.ArgumentParser(description='Convert Markdown + LaTeX to habrahabr\'s format.')
+parser.add_argument("-s", "--habrasid", help = "habrastorage session id")
 parser.add_argument("-f", "--infile", required = "True", help = "Name of input file")
 parser.add_argument("-o", "--outfile", required = "True", help = "Name of output file")
+parser.add_argument("-e", "--encoding", help = "Name of output file")
 args = vars(parser.parse_args())
+
+habrasid = args["habrasid"] or default_habrasid
+encoding = args["encoding"] or default_encoding
 
 
 def post(filename):
@@ -67,7 +73,6 @@ class LinkPool:
     def put_link(self, link):
         if link not in self.links:
             fname = self.getnext()
-            print link
             if os.path.isfile(link):
                 shutil.copyfile(link, fname)
             else:
@@ -127,16 +132,23 @@ class Processor:
 
     @staticmethod
     def inlineformula(group):
-        template = "<img src=\"{0}\">"
+        template = "<img src=\"{0}\" alt=\"inline_formula\">"
         return template.format(LinkPool.formula_link("\inline " + group[0]))
+
+    
+    @staticmethod
+    def is_cut(text):
+        return "<cut" in text
+
+    @staticmethod
+    def not_inline(text):
+        return "inline_formula" not in text and "<cut" not in text
 
 
 
 class Convertor:
 
-    
-
-    def __init__(self):
+    def __init__(self):        
         self.placecnt = 0
         self.postproc = {}
 
@@ -148,13 +160,13 @@ class Convertor:
             ("<!--cut(.*?)-->", Processor.cut)] 
 
         for regexp, processor in rules:
-            print regexp
             text = self.translator(text, regexp, processor)
         text = markdown2.markdown(text)
+        text = self.refine(text)
         text = self.expand(text)
         with LinkPool("links") as pool:
-            text = self.upload(text, pool)
-        return text
+            text = self.upload(text, pool) 
+        return text.encode(encoding)
 
     def translator(self, text, regexp, processor):
         habraplacer = "HABRAPLACER{0}H"
@@ -173,15 +185,13 @@ class Convertor:
 
     
     def expand(self, text):
-        print self.postproc
         expandpattern = "HABRAPLACER[0-9]*?H"
         cur = 0
         result = ""
         pattern = re.compile(expandpattern)
         for m in pattern.finditer(text):
             result += text[cur : m.start()]
-            print m.group()
-            result += self.postproc[m.group()].decode('utf-8')
+            result += self.postproc[m.group()].decode(encoding)
             cur = m.end()
         result += text[cur : ]
         return result
@@ -189,7 +199,7 @@ class Convertor:
     
     def upload(self, text, pool):
         habraind = "habrastorage"
-        uploadpattern = "(<img .*?src=\\\")(.*?)(\\\">)"
+        uploadpattern = "(<img .*?src=\\\")(.*?)(\\\".*?/?>)"
         cur = 0
         result = ""
         pattern = re.compile(uploadpattern)
@@ -197,22 +207,45 @@ class Convertor:
             result += text[cur : m.start()]
             link = m.group(2)
             if habraind not in link:
-                print "Uploading {0}".format(link)
+                #print "Uploading {0}".format(link)
                 link = pool.put_link(link)
-            print m.group(0)
             result += "{0}{1}{2}".format(m.group(1), link, m.group(3))
             cur = m.end()
         result += text[cur : ]
         return result
 
+    def placement_refine(self, text, regex, format, pred):
+        pattern = re.compile(regex)
+        tokens = pattern.split(text)
+        outtok = []
+        for t in tokens:
+            if pattern.match(t) != None\
+                and pred(self.postproc[t.strip()]):
+                    #print "!" + t + "!"
+                    outtok.append(format.format(t.strip()))
+            else:
+                outtok.append(t)
+        return "".join(outtok)
 
- 
 
+    def refine(self, text):
+        placepatternb = re.compile("(\\s*HABRAPLACER[0-9]*?H)")
+        text = text.replace("<p>", "").\
+                    replace("</p>", "")
+        reline_tags = ["h1", "h2", "h3", "h4", "h5", "ol", "ul"]
+        for tag in reline_tags:
+            text = re.sub("\\s*(<{0}.*?>)".format(tag), "\\n\\n\\1", text)
+        text = self.placement_refine(text, "(\\s*HABRAPLACER[0-9]*?H\\s*)", "{0}\n\n", Processor.is_cut)        
+        text = self.placement_refine(text, "(\\s*HABRAPLACER[0-9]*?H)", "\n\n{0}", Processor.not_inline)
+        text = self.placement_refine(text, "(HABRAPLACER[0-9]*?H\\s*)", "{0}\n", Processor.not_inline)
+        
+        for tag in reline_tags:
+            text = re.sub("(</{0}.*?>)\\s*".format(tag), "\\1\n", text)            
+        return text.strip()
     
-
 conv = Convertor()
 result = ""
 with open(args["infile"], "r") as infile:
-    result = conv.convert(infile.read()).encode('utf-8')
+    result = conv.convert(infile.read())
 with open(args["outfile"], "w") as outfile:
     outfile.write(result)
