@@ -2,6 +2,7 @@
 # Vsevolod Oparin, 2015
 
 import json
+import pyperclip
 import shutil
 import os.path
 import subprocess
@@ -19,6 +20,7 @@ parser.add_argument('infile', metavar='INFILE', nargs=1,
 parser.add_argument("-o", "--outfile", help = "Name of output file")
 parser.add_argument("-s", "--habrasid", help = "Habrastorage session id")
 parser.add_argument("-e", "--encoding", help = "Name of output file")
+parser.add_argument("-c", "--clipboard", action='store_true', help = "Copy result to clipboard")
 args = vars(parser.parse_args())
 
 habrasid = args["habrasid"] or default_habrasid
@@ -250,5 +252,7 @@ os.chdir(os.path.dirname(inname))
 outname = args["outfile"] or re.sub("\..*?$", ".txt", inname)
 with open(inname, "r") as infile:
     result = conv.convert(infile.read())
+if "clipboard" in args:
+    pyperclip.copy(result)
 with open(outname, "w") as outfile:
     outfile.write(result)
