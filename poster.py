@@ -67,11 +67,11 @@ class LinkPool:
         return self.getname(self.counter)
     
     def put_formula(self, formula):
-        print "Convert formula {0}".format(formula)
         return self.put_link(self.formula_link(formula))
 
     def put_link(self, link):
         if link not in self.links:
+            print "Uploading link {0}".format(link)
             fname = self.getnext()
             if os.path.isfile(link):
                 shutil.copyfile(link, fname)
@@ -221,7 +221,6 @@ class Convertor:
         for t in tokens:
             if pattern.match(t) != None\
                 and pred(self.postproc[t.strip()]):
-                    #print "!" + t + "!"
                     outtok.append(format.format(t.strip()))
             else:
                 outtok.append(t)
