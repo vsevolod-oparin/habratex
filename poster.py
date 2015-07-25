@@ -16,7 +16,6 @@ default_encoding = "utf-8"
 parser = argparse.ArgumentParser(description='Convert Markdown + LaTeX to habrahabr\'s format.')
 parser.add_argument('infile', metavar='INFILE', nargs=1,
                    help='Name of input file')
-# parser.add_argument("-f", "--infile", required = "True", help = "Name of input file")
 parser.add_argument("-o", "--outfile", help = "Name of output file")
 parser.add_argument("-s", "--habrasid", help = "Habrastorage session id")
 parser.add_argument("-e", "--encoding", help = "Name of output file")
