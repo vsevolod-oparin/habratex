@@ -2,14 +2,15 @@
 # Vsevolod Oparin, 2015
 
 import json
-import pyperclip
 import shutil
 import os.path
 import subprocess
 import sys
-import markdown2
 import argparse
 import re
+
+import attached.pyperclip as pyperclip
+import attached.markdown2 as markdown2
 
 default_setfile  = "/Users/majorm/project/habratex/default.json" 
 
