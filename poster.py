@@ -11,8 +11,7 @@ import markdown2
 import argparse
 import re
 
-default_habrasid = '1tdl7igaof40l7rjcvjrsfgd57'
-default_encoding = "utf-8"
+default_setfile  = __DEFAULT_SETTINGS__ 
 
 parser = argparse.ArgumentParser(description='Convert Markdown + LaTeX to habrahabr\'s format.')
 parser.add_argument('infile', metavar='INFILE', nargs=1,
@@ -23,27 +22,54 @@ parser.add_argument("-e", "--encoding", help = "Name of output file")
 parser.add_argument("-c", "--clipboard", action='store_true', help = "Copy result to clipboard")
 args = vars(parser.parse_args())
 
+default_habrasid  = None # '1tdl7igaof40l7rjcvjrsfgd57'
+default_encoding  = None # 'utf-8'
+default_directory = os.path.dirname(os.path.abspath(default_setfile))
+
+key_habrasid = "habrasid"
+key_encoding = "encoding"
+
+with open(default_setfile, "r") as f:
+    settings = json.loads(f.read())
+    default_habrasid  = settings[key_habrasid]
+    default_encoding  = settings[key_encoding]
+
 habrasid = args["habrasid"] or default_habrasid
 encoding = args["encoding"] or default_encoding
 
 
 def post(filename):
-    jres = subprocess.Popen(["curl",\
-        "--cookie", "habrastorage_sid={0}".format(habrasid),\
-        "--form", "files[]=@{0}".format(filename),\
-        "--header", "X-Requested-With: XMLHttpRequest",\
-        "--header", "Referer: http://habrastorage.org/",\
-        "--request", "POST", "https://habrastorage.org/main/upload",\
-        "2&>/dev/null"],\
-        stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0]
-    res = json.loads(jres)    
-    if "error" in res:
-        code = res['error']['code']
-        if code == 578:
-            print "Error: refresh habrastorage_sid"
+    global habrasid
+    done = False
+    old = habrasid
+    while not done:
+        jres = subprocess.Popen(["curl",\
+            "--cookie", "habrastorage_sid={0}".format(habrasid),\
+            "--form", "files[]=@{0}".format(filename),\
+            "--header", "X-Requested-With: XMLHttpRequest",\
+            "--header", "Referer: http://habrastorage.org/",\
+            "--request", "POST", "https://habrastorage.org/main/upload",\
+            "2&>/dev/null"],\
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0]
+        res = json.loads(jres)    
+        if "error" in res:
+            code = res['error']['code']
+            if code == 578:
+                print "Refresh habrastorage_sid: ",
+                habrasid = sys.stdin.readline().strip()
+            else:
+                print "Error: code {0}".format(code)
+            if habrasid in ["", "exit", "quit", "q", "e"]:
+                sys.exit(1)
         else:
-            print "Error: code {0}".format(code)
-        sys.exit(1)
+            done = True
+    if habrasid != old:
+        settings = {}
+        with open(default_setfile, "r") as f:
+            settings = json.loads(f.read())
+        settings[key_habrasid] = habrasid
+        with open(default_setfile, "w") as f:
+            f.write(json.dumps(settings))
     return res['files'][0]['url']
 
 class LinkPool:
@@ -249,6 +275,10 @@ conv = Convertor()
 inname = args["infile"][0]
 markdown = ""
 if inname == "clipboard":
+    args["clipboard"] = True
+    if not os.path.isdir(default_directory):
+        os.mkdir(default_directory)
+    os.chdir(default_directory)
     markdown = pyperclip.paste()
     with open(inname + ".md", "w") as infile:
         to_save = markdown
@@ -267,3 +297,4 @@ if "clipboard" in args:
     pyperclip.copy(result)
 with open(outname, "w") as outfile:
     outfile.write(result)
+print "Done"
