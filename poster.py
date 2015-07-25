@@ -14,9 +14,11 @@ default_habrasid = '1tdl7igaof40l7rjcvjrsfgd57'
 default_encoding = "utf-8"
 
 parser = argparse.ArgumentParser(description='Convert Markdown + LaTeX to habrahabr\'s format.')
-parser.add_argument("-s", "--habrasid", help = "habrastorage session id")
-parser.add_argument("-f", "--infile", required = "True", help = "Name of input file")
-parser.add_argument("-o", "--outfile", required = "True", help = "Name of output file")
+parser.add_argument('infile', metavar='INFILE', nargs=1,
+                   help='Name of input file')
+# parser.add_argument("-f", "--infile", required = "True", help = "Name of input file")
+parser.add_argument("-o", "--outfile", help = "Name of output file")
+parser.add_argument("-s", "--habrasid", help = "Habrastorage session id")
 parser.add_argument("-e", "--encoding", help = "Name of output file")
 args = vars(parser.parse_args())
 
@@ -244,7 +246,10 @@ class Convertor:
     
 conv = Convertor()
 result = ""
-with open(args["infile"], "r") as infile:
+inname = os.path.abspath(args["infile"][0])
+os.chdir(os.path.dirname(inname))
+outname = args["outfile"] or re.sub("\..*?$", ".txt", inname)
+with open(inname, "r") as infile:
     result = conv.convert(infile.read())
-with open(args["outfile"], "w") as outfile:
+with open(outname, "w") as outfile:
     outfile.write(result)
