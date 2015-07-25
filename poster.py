@@ -12,7 +12,7 @@ import re
 import attached.pyperclip as pyperclip
 import attached.markdown2 as markdown2
 
-default_setfile  = "/Users/majorm/project/habratex/default.json" 
+default_setfile  = __DEFAULT_SETTINGS__
 
 parser = argparse.ArgumentParser(description='Convert Markdown + LaTeX to habrahabr\'s format.')
 parser.add_argument('infile', metavar='INFILE', nargs=1,
