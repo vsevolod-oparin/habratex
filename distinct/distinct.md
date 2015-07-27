@@ -2,7 +2,7 @@
 =======================
 
 
-*Небольшая предыстория. Этот пост я написал для двух целей. Во-первых, обкатать конвертор разметки Markdown + $\LaTeX$ в хабрачитаемый вид. Во-вторых, рассказать об интересной задаче из data streaming. Первое получилось, а со вторым вышла накладка. К концу написания, я обнаружил [пост про LogLog](http://habrahabr.ru/post/119852/) четырехлетней давности. На мою удачу автор предыдущего поста делал упор на реализацию. Я же, полагаясь на $\LaTeX$, расскажу больше о математике.*
+*Небольшая предыстория. Этот пост я написал для двух целей. Во-первых, обкатать конвертор разметки Markdown + $\LaTeX$ в хабрачитаемый вид. Во-вторых, рассказать об интересной задаче из data streaming. К концу написания, я обнаружил [пост про LogLog](http://habrahabr.ru/post/119852/) четырехлетней давности. На мою удачу автор предыдущего поста делал упор на реализацию. Я же, полагаясь на $\LaTeX$, расскажу больше о математике.*
 
 Давайте представим, что у нас есть роутер. Через роутер проходит много пакетов по разным адресам. Нам интересно получить статистику, как много адресов задействовано в коммуникации. Есть пара проблем. 
 
@@ -59,8 +59,10 @@ $$
  для $a, b \in [p]$. Тогда
  
 $$
-\mathbf{Pr}_{h}\left[\;h(k_1) = v_1 \text{ and } h(k_2) = v_2 \;\right] = \\ \\=
+\begin{array}{l}
+\mathbf{Pr}_{h}\left[\;h(k_1) = v_1 \text{ and } h(k_2) = v_2 \;\right] = \\ =
 \mathbf{Pr}_{a, b}\left[\;\left\{\begin{array}{l}a \cdot k_1 + b = v_1 \text{ (mod }p) \\ a \cdot k_2 + b = v_2 \text{ (mod }p)\end{array} \right. \right] = p^{-2}.
+\end{array}
 $$
 
 Поскольку $k_1 \neq k_2$, система имеет ровно одно решение среди $p^2$ возможных:
@@ -140,20 +142,24 @@ $$
 Пусть $a$ — минимальное число такое, что $3 \cdot d \leq 2^{a + 0.5}$. Событие "алгоритм выдал ответ в 3 раза больше нужного" равносильно событию $z \geq a$ и равносильно событию $Y_a > 0$. Применяя [неравенство Маркова](https://ru.wikipedia.org/wiki/%D0%9D%D0%B5%D1%80%D0%B0%D0%B2%D0%B5%D0%BD%D1%81%D1%82%D0%B2%D0%BE_%D0%9C%D0%B0%D1%80%D0%BA%D0%BE%D0%B2%D0%B0), ограничим вероятность
 
 $$
-\mathbf{Pr}\left[\;FM(\sigma) \geq 3 \cdot d \;\right] = \mathbf{Pr}\left[\;z \geq a\;\right] = \mathbf{Pr}\left[\;Y_{a} > 0\;\right] = \\ =\mathbf{Pr}\left[\;Y_{a} \geq 1\;\right] \leq \mathbf{E}\left[\;Y_a\;\right]\;/\;1 = d \cdot 2^{-a} \leq\frac{\sqrt{2}}{3} \leq 0.48.
+\mathbf{Pr}\left[\;FM(\sigma) \geq 3 \cdot d \;\right] = \mathbf{Pr}\left[\;z \geq a\;\right] = \mathbf{Pr}\left[\;Y_{a} > 0\;\right] = \mathbf{Pr}\left[\;Y_{a} \geq 1\;\right] \leq \mathbf{E}\left[\;Y_a\;\right]\;/\;1 = d \cdot 2^{-a} \leq\frac{\sqrt{2}}{3} \leq 0.48.
 $$
 
 Пусть $b$ — максимальное число такое, что $2^{b + 0.5} \leq d \;/\;3$. Аналогично, событие "алгоритм выдал ответ в 3 раза меньше нужного" равносильно событию $z \leq b$ и равносильно событию $Y_{b+ 1} = 0$. Применяя [неравенство Чебышёва](https://ru.wikipedia.org/wiki/%D0%9D%D0%B5%D1%80%D0%B0%D0%B2%D0%B5%D0%BD%D1%81%D1%82%D0%B2%D0%BE_%D0%A7%D0%B5%D0%B1%D1%8B%D1%88%D1%91%D0%B2%D0%B0), получим
 
 $$
-\mathbf{Pr}\left[\;FM(\sigma) \leq d\;/\;3 \;\right] = \mathbf{Pr}\left[\;z \leq b\;\right] = \mathbf{Pr}\left[\;Y_{b + 1} = 0\;\right] = \\ =\mathbf{Pr}\left[\;\left|Y_{b + 1} - \frac{d}{2^{b+1}}\right| \geq  \frac{d}{2^{b+1}}\;\right] \leq \frac{\mathbf{D}\left[\;Y_{b +1}\;\right]}{(d \;/\;2^{b + 1})^2} = \frac{2^{b + 1}}{d} \leq \frac{\sqrt{2}}{3} \leq 0.48.
+\begin{array}{l}
+\mathbf{Pr}\left[\;FM(\sigma) \leq d\;/\;3 \;\right] = \mathbf{Pr}\left[\;z \leq b\;\right] = \mathbf{Pr}\left[\;Y_{b + 1} = 0\;\right] = \\ \\ =\mathbf{Pr}\left[\;\left|Y_{b + 1} - \frac{d}{2^{b+1}}\right| \geq  \frac{d}{2^{b+1}}\;\right] \leq \frac{\mathbf{D}\left[\;Y_{b +1}\;\right]}{(d \;/\;2^{b + 1})^2} = \frac{2^{b + 1}}{d} \leq \frac{\sqrt{2}}{3} \leq 0.48.
+\end{array}
 $$
 
 #### Финальный аккорд: медиана
 
 Осталось понять как понизить ошибку. Возьмем случай, когда алгоритм выдает слишком большой ответ. Запустим алгоритм параллельно $k$ раз и вернем медиану среди ответов. Я утверждаю, что если $k = \Omega(\log (\delta\;/\;2)^{-1})$, то алгоритм ошибется с вероятностью не больше $\delta\;/\;2$. Аналогично, ограничив ошибку в другую сторону, получим
 $$
-\mathbf{Pr}\left[\;FM_k(\sigma) \leq d\;/\;3 \vee FM_k(\sigma) \geq 3 \cdot d\;\right] \leq \\ \\ \leq \mathbf{Pr}\left[\;FM_k(\sigma) \leq d\;/\;3 \right] + \mathbf{Pr}\left[\;FM_k(\sigma) \geq 3 \cdot d \right] \leq \delta.
+
+\mathbf{Pr}\left[\;FM_k(\sigma) \leq d\;/\;3 \vee FM_k(\sigma) \geq 3 \cdot d\;\right] \leq \mathbf{Pr}\left[\;FM_k(\sigma) \leq d\;/\;3 \right] + \mathbf{Pr}\left[\;FM_k(\sigma) \geq 3 \cdot d \right] \leq \delta.
+
 $$
 
 Почему медиана так работает? По неравенству Чернова. Заведем случайную величину $Z_i = [FM(\sigma) < 3 \cdot d]$. Величина $Z_i$ равна единице, если ответ алгоритма на $i$ запуске меньше $3 \cdot d$. Вероятность этого события не меньше 0.52.
@@ -175,8 +181,6 @@ $$
 Различных подмножеств из $[n]$ размера $n\,/\,2$ примерно $2^n\,/\,n$. Если мы хотим каждому множеству сопоставить битовую строку, нам потребуется $\Omega(\log (2^n \,/\,n)) = \Omega(n)$ 
  
 ### Что почитать
-
-
 
 
 1. "Probabilistic Counting Algorithms for Data Base Applications", Flajolet, Martin, 1983, [link](http://www.mathcs.emory.edu/~cheung/papers/StreamDB/Probab/1985-Flajolet-Probabilistic-counting.pdf). 

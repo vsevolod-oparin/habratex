@@ -10,7 +10,7 @@ from   include.linkpool   import    LinkPool
 from   include.settings   import    Settings
 from   include.convertor  import    Convertor
 
-default_directory   = "/Users/majorm/project/habratex"
+default_directory   = __DEFAULT_SETTINGS__
 pool_name           = "links"
 default_setfile     = os.path.join(default_directory, "default.json")
 settings            = Settings(default_setfile)

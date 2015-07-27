@@ -32,7 +32,10 @@ class RuleHolder:
 
     @staticmethod
     def formula_link(formula):    
-        return RuleHolder.fsource.format(urllib.quote(formula))
+        return RuleHolder.fsource.format(\
+                    urllib.quote(formula).\
+                    replace("/", "%2F").\
+                    replace("\\", "%5C"))
         
     @staticmethod
     def centerformula(group):
