@@ -24,11 +24,12 @@ code = code.replace(place, "\"{0}\"".format(path))
 with open("poster.py", "w") as f:
     f.write(code)
 
+if os.name == 'nt' or platform.system() == 'Windows':
+        settings.set_encoding('cp1251')
+
 if args["link"]:
     print "Asked"
-    if os.name == 'nt' or platform.system() == 'Windows':
-        settings.set_encoding('cp1251')
-    else:
+    if os.name != 'nt' and platform.system() != 'Windows':
         if not os.path.isfile(link):
             subprocess.call(["ln", "-s", os.path.abspath(poster), link])
 
