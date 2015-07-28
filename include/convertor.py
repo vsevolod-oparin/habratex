@@ -67,7 +67,7 @@ class Convertor:
     def upload(self, text):
         habraind = "habrastorage"
         texs2svg = "tex.s2cms.ru/svg"
-        uploadpattern = "(<img .*?src=\\\")(self.*?)(\\\".*?/?>)"
+        uploadpattern = "(<img .*?src=\\\")(.*?)(\\\".*?/?>)"
         cur = 0
         result = ""
         pattern = re.compile(uploadpattern)
