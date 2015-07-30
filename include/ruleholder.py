@@ -27,7 +27,7 @@ class RuleHolder:
     def cut(group):
         if (len(group) > 0):
             title = group[0].strip()
-            return "<cut>" if title == "" else "<cut title=\"{0}\">".format(title)
+            return "<cut>" if title == "" else "<cut text=\"{0}\">".format(title)
         return "<cut>"
 
     @staticmethod
@@ -60,6 +60,5 @@ rules = [\
     ("```((.*?\\s?)*?)```",     RuleHolder.source),\
     ("\$\$((.*?\\s?)*?)\$\$",   RuleHolder.centerformula),\
     ("\$((.*?\\s?)*?)\$",       RuleHolder.inlineformula),\
-    ("<!--cut(.*?)-->",         RuleHolder.cut)\
+    ("<!--\s*?cut(.*?)-->",     RuleHolder.cut)\
     ] 
-
