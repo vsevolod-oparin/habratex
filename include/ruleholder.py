@@ -49,7 +49,7 @@ class RuleHolder:
 
     @staticmethod
     def img_align(group, pool):
-        if group[2] in ["left", "right"]:
+        if group[2] in ["left", "right", "center"]:
             return "".join([group[0], "align=\"{0}\"".format(group[2]), group[3]])
         return "".join([group[0], group[1], group[3]])
 
