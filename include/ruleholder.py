@@ -46,6 +46,21 @@ class RuleHolder:
     def inlineformula(group):
         template = "<img src=\"{0}\" alt=\"inline_formula\">"
         return template.format(RuleHolder.formula_link("\inline " + group[0]))
+
+    @staticmethod
+    def img_align(group, pool):
+        if group[2] in ["left", "right"]:
+            return "".join([group[0], "align=\"{0}\"".format(group[2]), group[3]])
+        return "".join([group[0], group[1], group[3]])
+
+    @staticmethod
+    def upload(group, pool):
+        habraind = "habrastorage"
+        texs2svg = "tex.s2cms.ru/svg"
+        link = group[1]
+        if habraind not in link and texs2svg not in link:
+            link = pool.put_link(link)
+        return "{0}{1}{2}".format(group[0], link, group[2])
     
     @staticmethod
     def is_cut(text):
@@ -60,5 +75,9 @@ rules = [\
     ("```((.*?\\s?)*?)```",     RuleHolder.source),\
     ("\$\$((.*?\\s?)*?)\$\$",   RuleHolder.centerformula),\
     ("\$((.*?\\s?)*?)\$",       RuleHolder.inlineformula),\
-    ("<!--\s*?cut(.*?)-->",     RuleHolder.cut)\
+    ("<!--\s*?cut(.*?)-->",     RuleHolder.cut),\
     ] 
+
+
+postrules = [("(<img .*?src=\\\")(.*?)(\\\".*?/?>)", RuleHolder.upload),\
+             ("(<img.*?)(alt=\"(.*?)\")(.*?/?>)",    RuleHolder.img_align)]

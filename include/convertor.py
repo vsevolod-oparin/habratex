@@ -32,7 +32,8 @@ class Convertor:
         text = markdown2.markdown(text)
         text = self.refine(text)
         text = self.expand(text)
-        text = self.upload(text) 
+        for regexp, processor in ruleholder.postrules:
+            text = self.posttran(text, regexp, processor)
         return text.encode(self.settings.encoding())
 
     def translator(self, text, regexp, processor):
@@ -63,23 +64,17 @@ class Convertor:
         result += text[cur : ]
         return result
 
-    
-    def upload(self, text):
-        habraind = "habrastorage"
-        texs2svg = "tex.s2cms.ru/svg"
-        uploadpattern = "(<img .*?src=\\\")(.*?)(\\\".*?/?>)"
+    def posttran(self, text, regexp, processor):
         cur = 0
         result = ""
-        pattern = re.compile(uploadpattern)
+        pattern = re.compile(regexp)
         for m in pattern.finditer(text):
             result += text[cur : m.start()]
-            link = m.group(2)
-            if habraind not in link and texs2svg not in link:
-                link = self.pool.put_link(link)
-            result += "{0}{1}{2}".format(m.group(1), link, m.group(3))
+            result += processor(m.groups(), self.pool)
             cur = m.end()
         result += text[cur : ]
         return result
+      
 
     def placement_refine(self, text, regex, format, pred):
         pattern = re.compile(regex)
