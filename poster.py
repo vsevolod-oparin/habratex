@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 # Author: Vsevolod Oparin, 2015
 
 import re
