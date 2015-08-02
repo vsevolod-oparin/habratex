@@ -31,6 +31,17 @@ class RuleHolder:
         return "<cut>"
 
     @staticmethod
+    def spoilerbeg(group):
+        if (len(group) > 0):
+            title = group[0].strip()
+            return "<spoiler>" if title == "" else "<spoiler title=\"{0}\">".format(title)
+        return "<spoiler>"
+
+    @staticmethod
+    def spoilerfin(group):
+        return "</spoiler>"
+
+    @staticmethod
     def formula_link(formula):    
         return RuleHolder.fsource.format(\
                     urllib.quote(formula).\
@@ -70,12 +81,16 @@ class RuleHolder:
     def not_inline(text):
         return "inline_formula" not in text and "<cut" not in text
 
+
+
     
 rules = [\
     ("```((.*?\\s?)*?)```",     RuleHolder.source),\
     ("\$\$((.*?\\s?)*?)\$\$",   RuleHolder.centerformula),\
     ("\$((.*?\\s?)*?)\$",       RuleHolder.inlineformula),\
     ("<!--\s*?cut(.*?)-->",     RuleHolder.cut),\
+    ("<!--\s*?spoiler(.*?)-->", RuleHolder.spoilerbeg),\
+    ("<!--\s*?/spoiler\s*?-->", RuleHolder.spoilerfin)\
     ] 
 
 
